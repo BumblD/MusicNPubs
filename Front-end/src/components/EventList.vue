@@ -39,7 +39,7 @@ export default {
   name: 'App',
   data: function () {
     // fetch data from api
-    axios.get('https://localhost:44341/api/events/getevents')
+    axios.get('https://localhost:44341/api/events/getallevents')
       .then(response => (console.log(response.data)))
 
     return {
