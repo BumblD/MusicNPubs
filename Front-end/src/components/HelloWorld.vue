@@ -1,12 +1,6 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
-    <ul>
-      <li>
-        <router-link to="/EventList">Renginiai</router-link>
-      </li>
-      <br>
-    </ul>
   </div>
 </template>
 
@@ -15,7 +9,7 @@ export default {
   name: 'HelloWorld',
   data () {
     return {
-      msg: 'Welcome Admin'
+      msg: ''
     }
   }
 }
