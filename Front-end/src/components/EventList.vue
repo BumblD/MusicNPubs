@@ -1,7 +1,7 @@
 <template>
   <div class='center'>
     <md-card class='box'>
-      <md-button class="md-raised md-primary margin">Kurti naują</md-button>
+      <md-button class="md-raised md-primary margin" v-on:click="Create" >Kurti naują</md-button>
         <md-list class='width'>
           <md-divider class="md-inset"></md-divider>
           <div v-for="event in events" v-bind:key="event.eventId">
@@ -62,6 +62,12 @@ export default {
       events: []
     }
   },
+  methods: {
+    Create: function (event) {
+      router.push({ name: 'Event', params: { new: 1 } })
+    }
+  },
+
   async mounted () {
     // fetch data from api
     await axios.get('https://localhost:44341/api/events/getallevents')

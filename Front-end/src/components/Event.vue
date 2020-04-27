@@ -1,7 +1,7 @@
 <template>
   <md-card>
     <div>
-      <md-field >
+      <md-field>
         <label>Pavadinimas</label>
         <md-input v-model="Event.name"></md-input>
       </md-field>
@@ -20,8 +20,14 @@
         <label>Aprašymas</label>
         <md-textarea v-model="Event.description"></md-textarea>
       </md-field>
-      <md-button class='md-raised md-primary align-right center-vertical' v-on:click="Submit">Pateikti</md-button>
-      <md-button class='md-raised md-secondary align-right center-vertical' v-on:click="Cancel">Atšaukti</md-button>
+      <md-button
+        class="md-raised md-primary align-right center-vertical"
+        v-on:click="Submit"
+      >Pateikti</md-button>
+      <md-button
+        class="md-raised md-secondary align-right center-vertical"
+        v-on:click="Cancel"
+      >Atšaukti</md-button>
     </div>
   </md-card>
 </template>
@@ -38,30 +44,59 @@ export default {
   name: 'App',
   methods: {
     Submit: function () {
-      axios.post('https://localhost:44341/api/Events/UpdateEvent', {
-        EventId: this.Event.eventId,
-        Name: this.Event.name,
-        Date: this.Event.date.split('T')[0], // fix to save with time
-        Price: this.Event.price,
-        Description: this.Event.description,
-        Poster: this.Event.poster,
-        BarId: this.Event.barId
-      })
-        .then(function (response) {
-          alert('Duomenys apie renginį atnaujinti sėkmingai!')
-        })
+      if (this.Create === 1) {
+        console.log(this.Event)
+        axios
+          .post('https://localhost:44341/api/Events/CreateEvent', {
+            Name: this.Event.name,
+            Date: this.Event.date.split('T')[0], // fix to save with time
+            Price: Number(this.Event.price),
+            Description: this.Event.description,
+            Poster: this.Event.poster,
+            BarId: 1
+          })
+          .then(function (response) {
+            alert('Duomenys apie renginį sukurti sėkmingai!')
+          })
+          // eslint-disable-next-line handle-callback-err
+          .catch(function (error) {
+            alert('Klaida! Nepavyko sukurti duomenų!')
+          })
+      } else {
+        axios
+          .post('https://localhost:44341/api/Events/UpdateEvent', {
+            EventId: Number(this.Event.eventId),
+            Name: this.Event.name,
+            Date: this.Event.date.split('T')[0], // fix to save with time
+            Price: Number(this.Event.price),
+            Description: this.Event.description,
+            Poster: this.Event.poster,
+            BarId: Number(this.Event.barId)
+          })
+          .then(function (response) {
+            alert('Duomenys apie renginį atnaujinti sėkmingai!')
+          })
         // eslint-disable-next-line handle-callback-err
-        .catch(function (error) {
-          alert('Klaida! Nepavyko atnaujinti duomenų!')
-        })
+          .catch(function (error) {
+            alert('Klaida! Nepavyko atnaujinti duomenų!')
+          })
+      }
     },
     Cancel: function () {
       router.push('EventList')
     }
   },
+  beforeMount () {
+    if (this.Create === 1) {
+      this.Event = {
+        date: '2020-01-01T00:00:00'
+      }
+    }
+  },
   data: function () {
     return {
-      Event: this.$route.params.event
+      Event: this.$route.params.event,
+      Create: this.$route.params.new
     }
   }
 }
