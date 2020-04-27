@@ -6,7 +6,7 @@
           <md-divider class="md-inset"></md-divider>
           <div v-for="event in events" v-bind:key="event.eventId">
             <md-list-item>
-              <Event-Card :object="event"></Event-Card>
+              <Event-Card :object="event" @Deleted="onClickChild"></Event-Card>
             </md-list-item>
             <md-divider class="md-inset"></md-divider>
           </div>
@@ -20,6 +20,7 @@ import Event from '@/components/Event'
 import Vue from 'vue'
 import router from '../router/index.js'
 import axios from 'axios'
+var self = this
 
 Vue.component('Event-Card', {
 
@@ -33,9 +34,9 @@ Vue.component('Event-Card', {
     Detailed: function () {
       router.push({ name: 'Event', params: { event: this.object } })
     },
-    Remove: function () {
+    Remove: async function () {
       if (confirm('Ar tikrai norite pašalinti šį įvykį?')) {
-        axios.delete('https://localhost:44341/api/Events/DeleteEvent/' + this.object.eventId)
+        await axios.delete('https://localhost:44341/api/Events/DeleteEvent/' + this.object.eventId)
           .then(function (response) {
             console.log(alert('Renginys ištrintas!'))
           })
@@ -43,6 +44,7 @@ Vue.component('Event-Card', {
           .catch(function (error) {
             alert('Klaida! Nepavyko ištrinti renginio!')
           })
+        this.$emit('Deleted')
       }
     }
   },
@@ -63,15 +65,22 @@ export default {
     }
   },
   methods: {
+    onClickChild () {
+      this.events = []
+      this.Load()
+    },
     Create: function (event) {
       router.push({ name: 'Event', params: { new: 1 } })
+    },
+    Load: async function () {
+      await axios.get('https://localhost:44341/api/events/getallevents')
+      .then(response => (this.events = response.data))
     }
   },
 
-  async mounted () {
+  async beforeMount () {
     // fetch data from api
-    await axios.get('https://localhost:44341/api/events/getallevents')
-      .then(response => (this.events = response.data))
+    await this.Load();
   },
   components: {
     Event

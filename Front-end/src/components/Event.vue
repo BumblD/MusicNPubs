@@ -43,10 +43,10 @@ Vue.use(VueMaterial)
 export default {
   name: 'App',
   methods: {
-    Submit: function () {
+    Submit: async function () {
       if (this.Create === 1) {
         console.log(this.Event)
-        axios
+        await axios
           .post('https://localhost:44341/api/Events/CreateEvent', {
             Name: this.Event.name,
             Date: this.Event.date.split('T')[0], // fix to save with time
@@ -62,6 +62,7 @@ export default {
           .catch(function (error) {
             alert('Klaida! Nepavyko sukurti duomenų!')
           })
+        router.push({ name: 'EventList'})
       } else {
         axios
           .post('https://localhost:44341/api/Events/UpdateEvent', {
@@ -80,6 +81,7 @@ export default {
           .catch(function (error) {
             alert('Klaida! Nepavyko atnaujinti duomenų!')
           })
+        router.push({ name: 'EventList'})
       }
     },
     Cancel: function () {
