@@ -4,7 +4,7 @@
       <md-button class="md-raised md-primary margin" v-on:click="Create" >Kurti naują</md-button>
         <md-list class='width'>
           <md-divider class="md-inset"></md-divider>
-          <div v-for="event in events" v-bind:key="event.eventId">
+          <div v-for="event in events" v-bind:key="HotReload">
             <md-list-item>
               <Event-Card :object="event" @Deleted="onClickChild"></Event-Card>
             </md-list-item>
@@ -16,20 +16,16 @@
 </template>
 
 <script>
+import '../Styles/EventList.css'
+import VueMaterial from 'vue-material'
 import Event from '@/components/Event'
 import Vue from 'vue'
 import router from '../router/index.js'
 import axios from 'axios'
 var self = this
-
+Vue.use(VueMaterial)
 Vue.component('Event-Card', {
-
   props: ['object'],
-  /* data: function () {
-    return {
-      count: 0
-    }
-  }, */
   methods: {
     Detailed: function () {
       router.push({ name: 'Event', params: { event: this.object } })
@@ -49,11 +45,11 @@ Vue.component('Event-Card', {
     }
   },
   template: `
-  <div class='width'>
-  <h4>{{ object.name }}
+  <div style='width: 100%'>
+  {{ object.name }}
     <md-button class='md-raised md-primary align-right center-vertical' v-on:click='Detailed' >Redaguoti</md-button>
     <md-button class='md-raised md-primary align-right center-vertical' v-on:click='Remove' >Šalinti</md-button>
-  </h4>
+  
   </div>`
 })
 
@@ -74,7 +70,7 @@ export default {
     },
     Load: async function () {
       await axios.get('https://localhost:44341/api/events/getallevents')
-      .then(response => (this.events = response.data))
+      .then(response => (this.events = response.data))      
     }
   },
 
@@ -87,42 +83,3 @@ export default {
   }
 }
 </script>
-
-<style>
-.box {
-  text-align: left;
-}
-
-.center {
-  margin: auto;
-  width: 50%;
-  padding: 10px;
-}
-
-.center-vertical {
-  top: 50%;
-  -ms-transform: translateY(-50%);
-  transform: translateY(-50%);
-}
-
-.border {
-  border: 3px solid grey;
-  padding-left: 1%;
-  padding-right: 1%;
-  margin: 1%;
-}
-
-.align-right {
-  float: right;
-  padding-left: 1%;
-  padding-right: 1%;
-}
-
-.width {
-  width: 100%
-}
-
-.margin {
-  margin: 2%;
-}
-</style>

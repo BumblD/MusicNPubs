@@ -5,7 +5,7 @@
         <label>Pavadinimas</label>
         <md-input v-model="Event.name"></md-input>
       </md-field>
-      <md-datepicker v-model="Event.date.split('T')[0]">
+      <md-datepicker v-model="Event.date">
         <label>Data, laikas</label>
       </md-datepicker>
       <md-field>
@@ -49,7 +49,7 @@ export default {
         await axios
           .post('https://localhost:44341/api/Events/CreateEvent', {
             Name: this.Event.name,
-            Date: this.Event.date.split('T')[0], // fix to save with time
+            Date: this.Event.date,
             Price: Number(this.Event.price),
             Description: this.Event.description,
             Poster: this.Event.poster,
@@ -68,7 +68,7 @@ export default {
           .post('https://localhost:44341/api/Events/UpdateEvent', {
             EventId: Number(this.Event.eventId),
             Name: this.Event.name,
-            Date: this.Event.date.split('T')[0], // fix to save with time
+            Date: this.Event.date,
             Price: Number(this.Event.price),
             Description: this.Event.description,
             Poster: this.Event.poster,
@@ -89,9 +89,13 @@ export default {
     }
   },
   beforeMount () {
+    if(this.Event != null)
+    {
+      this.Event.date =  this.Event.date.split('T')[0];
+    }
     if (this.Create === 1) {
       this.Event = {
-        date: '2020-01-01T00:00:00'
+        date: '2020-01-01'
       }
     }
   },
