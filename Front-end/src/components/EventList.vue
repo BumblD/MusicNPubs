@@ -1,12 +1,12 @@
 <template>
   <div class='center'>
     <md-card class='box'>
-      <md-button class="md-raised md-primary margin">Kurti naują</md-button>
+      <md-button class="md-raised md-primary margin" v-on:click="Create" >Kurti naują</md-button>
         <md-list class='width'>
           <md-divider class="md-inset"></md-divider>
-          <div v-for="event in events" v-bind:key="event.eventId">
+          <div v-for="event in events" v-bind:key="HotReload">
             <md-list-item>
-              <Event-Card :object="event"></Event-Card>
+              <Event-Card :object="event" @Deleted="onClickChild"></Event-Card>
             </md-list-item>
             <md-divider class="md-inset"></md-divider>
           </div>
@@ -16,26 +16,23 @@
 </template>
 
 <script>
+import '../Styles/EventList.css'
+import VueMaterial from 'vue-material'
 import Event from '@/components/Event'
 import Vue from 'vue'
 import router from '../router/index.js'
 import axios from 'axios'
-
+var self = this
+Vue.use(VueMaterial)
 Vue.component('Event-Card', {
-
   props: ['object'],
-  /* data: function () {
-    return {
-      count: 0
-    }
-  }, */
   methods: {
     Detailed: function () {
       router.push({ name: 'Event', params: { event: this.object } })
     },
-    Remove: function () {
+    Remove: async function () {
       if (confirm('Ar tikrai norite pašalinti šį įvykį?')) {
-        axios.delete('https://localhost:44341/api/Events/DeleteEvent/' + this.object.eventId)
+        await axios.delete('https://localhost:44341/api/Events/DeleteEvent/' + this.object.eventId)
           .then(function (response) {
             console.log(alert('Renginys ištrintas!'))
           })
@@ -43,15 +40,16 @@ Vue.component('Event-Card', {
           .catch(function (error) {
             alert('Klaida! Nepavyko ištrinti renginio!')
           })
+        this.$emit('Deleted')
       }
     }
   },
   template: `
-  <div class='width'>
-  <h4>{{ object.name }}
+  <div style='width: 100%'>
+  {{ object.name }}
     <md-button class='md-raised md-primary align-right center-vertical' v-on:click='Detailed' >Redaguoti</md-button>
     <md-button class='md-raised md-primary align-right center-vertical' v-on:click='Remove' >Šalinti</md-button>
-  </h4>
+  
   </div>`
 })
 
@@ -62,52 +60,26 @@ export default {
       events: []
     }
   },
-  async mounted () {
+  methods: {
+    onClickChild () {
+      this.events = []
+      this.Load()
+    },
+    Create: function (event) {
+      router.push({ name: 'Event', params: { new: 1 } })
+    },
+    Load: async function () {
+      await axios.get('https://localhost:44341/api/events/getallevents')
+      .then(response => (this.events = response.data))      
+    }
+  },
+
+  async beforeMount () {
     // fetch data from api
-    await axios.get('https://localhost:44341/api/events/getallevents')
-      .then(response => (this.events = response.data))
+    await this.Load();
   },
   components: {
     Event
   }
 }
 </script>
-
-<style>
-.box {
-  text-align: left;
-}
-
-.center {
-  margin: auto;
-  width: 50%;
-  padding: 10px;
-}
-
-.center-vertical {
-  top: 50%;
-  -ms-transform: translateY(-50%);
-  transform: translateY(-50%);
-}
-
-.border {
-  border: 3px solid grey;
-  padding-left: 1%;
-  padding-right: 1%;
-  margin: 1%;
-}
-
-.align-right {
-  float: right;
-  padding-left: 1%;
-  padding-right: 1%;
-}
-
-.width {
-  width: 100%
-}
-
-.margin {
-  margin: 2%;
-}
-</style>

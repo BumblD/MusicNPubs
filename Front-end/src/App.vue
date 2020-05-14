@@ -2,13 +2,11 @@
   <div id="app">
     <h1>Muzika ir barai</h1>
       <ul>
-      <li>
         <router-link to="/EventList">Renginiai</router-link>
+        <router-link to="/Map">Žemėlapis</router-link>
         <router-link to="/">Grojaraštis</router-link>
         <router-link to="/">Lankytojai</router-link>
         <router-link to="/">Sąskaitos</router-link>
-      </li>
-      <br><br>
     </ul>
     <router-view/>
   </div>
