@@ -5,14 +5,14 @@
             <label>
             Baro Pavadinimas 
             <br>
-            {{barID}}
+            {{barInfo.name}}
             </label>
         </div>      
         <md-divider class="md-inset"></md-divider>
         <div>
             Baro Aprašymas
             <br>
-            {{barID}}
+            {{barInfo.description}}
         </div>
         <br>
         <div>
@@ -50,6 +50,7 @@ export default {
   data: function () {
     return {
       barID: this.$route.params.barID,
+      barInfo: this.$route.params.bar
     }
   },
   methods: {

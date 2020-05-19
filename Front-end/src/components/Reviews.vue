@@ -3,26 +3,43 @@
     Baro {{barID}} Atsiliepimai
     <div width="60%" right="20%">
         <div v-for="review in reviews">
-            <md-list-item>
-                {{review.description}}
-            </md-list-item>
-            <md-divider class="md-inset"></md-divider>
+          Atsiliepimas: {{review.review}} Data: {{review.date.split('T')[0]}}  Ivertinimas: {{review.grade}}
+          <md-divider class="md-inset"></md-divider>
         </div>
     </div>
   </div>
 </template>
 
 <script>
+import Vue from 'vue'
+import router from '../router/index.js'
+import axios from 'axios'
 export default {
   name: 'App',
   data: function () {
     return {
       barID: this.$route.params.barID,
-      reviews: [
-      {description: "sucks"},
-      {description: "can confirm this one is bad"}]
+      reviews: []
     }
   },
+  async beforeMount () {
+    // fetch data from api
+    await this.Load();
+  },
+  methods: {
+    Load: async function () {
+      var me = this;
+        await axios.get('https://localhost:44341/api/Review/GetAllReviews/'+this.barID)
+      .then(function(response){
+          for(var i = 0; i < response.data.length; i++)
+          {
+            var tempobj = {};
+            me.reviews.push(response.data[i]);
+          }
+      })   
+
+    }
+  }
 }
 </script>
 <style scoped>
