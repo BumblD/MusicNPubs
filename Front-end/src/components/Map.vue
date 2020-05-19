@@ -57,7 +57,7 @@ export default {
     return {
       zoom: 13,
       markers: [
-        {
+        /*{
           id: 'm1',
           position: { lat: 54.899316, lng: 23.906685 },
           tooltip: 'tooltip for marker1',
@@ -76,7 +76,7 @@ export default {
           id: 'm4',
           position: { lat: 54.899316, lng: 23.900685 },
           tooltip: 'tooltip for marker4',
-        },
+        },*/
       ],
       center: latLng(54.899316, 23.904685),
       url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -95,14 +95,16 @@ export default {
   },
   methods: {
     Load: async function () {
-        await axios.get('https://localhost:44341/api/events/getallevents')
+      var me = this;
+        await axios.get('https://localhost:44341/api/Bar/GetAllBars')
       .then(function(response){
           for(var i = 0; i < response.data.length; i++)
           {
             var tempobj = {};
-            tempobj.position = {lat: response.data[i].price, lng: response.data[i].name};
-            tempobj.id = response.data[i].eventId;
+            tempobj.position = {lat: response.data[i].lat, lng: response.data[i].lng};
+            tempobj.id = response.data[i].barID;
             tempobj.tooltip = response.data[i].name;
+            me.markers.push(tempobj);
             console.log(response.data[i]);
             console.log(tempobj);
           }
@@ -116,9 +118,15 @@ export default {
     centerUpdate(center) {
       this.currentCenter = center;
     },
-    innerClick(markerid) {
+    async innerClick(markerid) {
+      var me = this;
+      var tempobj = {};
+      await axios.get('https://localhost:44341/api/Bar/GetBars/'+markerid)
+      .then(function(response){
+        tempobj = response.data[0];
+      })     
       console.log("clicked" + markerid)
-      router.push({ name: 'BarDetails', params: { barID: markerid } })
+      router.push({ name: 'BarDetails', params: { barID: markerid , bar: tempobj} })
     }
   }
 };
