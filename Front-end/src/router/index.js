@@ -6,6 +6,7 @@ import Event from '@/components/Event'
 import MapPage from '@/components/Map.vue'
 import BarDetails from '@/components/BarDetails.vue'
 import Reviews from '@/components/Reviews.vue'
+import Playlist from '@/components/Playlist.vue'
 Vue.use(Router)
 
 export default new Router({
@@ -40,5 +41,10 @@ export default new Router({
       name: 'Reviews',
       component: Reviews
     },
+    {
+      path: '/Playlist',
+      name: 'Playlist',
+      component: Playlist
+    }
   ]
 })

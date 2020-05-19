@@ -4,7 +4,7 @@
       <ul>
         <router-link to="/EventList">Renginiai</router-link>
         <router-link to="/Map">Žemėlapis</router-link>
-        <router-link to="/">Grojaraštis</router-link>
+        <router-link to="/Playlist">Grojaraštis</router-link>
         <router-link to="/">Lankytojai</router-link>
         <router-link to="/">Sąskaitos</router-link>
     </ul>
@@ -19,6 +19,7 @@ export default {
 </script>
 
 <style>
+@import url("https://fonts.googleapis.com/css?family=Material+Icons");
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

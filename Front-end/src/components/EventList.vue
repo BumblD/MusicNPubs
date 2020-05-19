@@ -49,7 +49,7 @@ Vue.component('Event-Card', {
   {{ object.name }}
     <md-button class='md-raised md-primary align-right center-vertical' v-on:click='Detailed' >Redaguoti</md-button>
     <md-button class='md-raised md-primary align-right center-vertical' v-on:click='Remove' >Šalinti</md-button>
-  
+
   </div>`
 })
 
@@ -70,13 +70,13 @@ export default {
     },
     Load: async function () {
       await axios.get('https://localhost:44341/api/events/getallevents')
-      .then(response => (this.events = response.data))      
+        .then(response => (this.events = response.data))
     }
   },
 
   async beforeMount () {
     // fetch data from api
-    await this.Load();
+    await this.Load()
   },
   components: {
     Event
