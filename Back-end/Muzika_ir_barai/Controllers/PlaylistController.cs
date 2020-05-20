@@ -95,5 +95,38 @@ namespace Muzika_ir_barai.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+
+        [HttpPost]
+        [Route("{playlist}/BlockSong/{id}")]
+        public IActionResult CreateEvent([FromRoute] int playlist, [FromRoute] int id)
+        {
+            if (playlist < 0)
+                return BadRequest();
+
+            if (id < 0)
+                return BadRequest();
+
+            try
+            {
+                Db.Connection.Open();
+                var cmd = Db.Connection.CreateCommand();
+                cmd.CommandText = $"INSERT INTO BlokuotosDainos(Daina, Baras) " +
+                    $"SELECT dg.Daina, g.Baras" +
+                    $"FROM DainosGrojarasciai dg" +
+                    $"JOIN Grojarasciai g ON g.id = dg.Grojarastis" +
+                    $"WHERE dg.Daina = {id} AND dg.Grojarastis = {playlist}";
+                cmd.ExecuteNonQuery();
+
+                cmd.CommandText = $"DELETE DainosGrojarasciai WHERE Daina = {id} AND Grojarastis = {playlist}";
+                cmd.ExecuteNonQuery();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
     }
 }
