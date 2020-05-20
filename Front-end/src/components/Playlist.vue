@@ -5,23 +5,21 @@
         <div class="md-layout-item" style="display: flex;align-items: center;">
           <md-field md-clearable>
             <label>Pavadinimas</label>
-            <md-input v-model="playlist.name"></md-input>
+            <md-input v-model="selected.name"></md-input>
           </md-field>
         </div>
 
         <div class="md-layout-item" style="display: flex;align-items: center;">
           <md-field>
             <label for="playlists">Grojaraščių sąrašas</label>
-            <md-select v-model="playlist" name="playlist" id="playlist" md-dense>
-              <div v-for="pl in playlists" v-bind:key="pl.id">
-                <md-option :value="pl.id">{{pl.name}}</md-option>
-              </div>
+            <md-select v-model="selected" md-dense>
+                <md-option v-for="pl in playlists" :value="pl" :key="pl.id" > {{ pl.name }} </md-option>
             </md-select>
           </md-field>
         </div>
 
         <div class="md-layout-item" style="display: flex;align-items: center;">
-          <md-checkbox v-model="boolean">Leisti lankytojams siūlyti dainas</md-checkbox>
+          <md-checkbox v-model="LetChoose">Leisti lankytojams siūlyti dainas</md-checkbox>
         </div>
       </div>
 
@@ -88,17 +86,26 @@ export default {
   name: 'App',
   data: function () {
     return {
+      LetChoose: false,
       barId: 1,
       playlistName: 'European hits',
       playlists: [ { id: 1, name: 'bang bang' }, { id: 2, name: 'ding ding' }, { id: 0, name: '' } ],
       songs: [ { id: 1, name: 'Queen - Don\'t Stop Me Now' }, { id: 2, name: 'Survivor - Eye Of The Tiger' } ],
-      playlist: { id: 0, name: '' }
+      selected: '',
     }
   },
   methods: {
+    Remove: function()
+    {
+      console.log("removed");
+    },
+    work: function()
+    {
+      console.log("hi");
+    },
     LoadPlaylists: async function () {
-      await axios.get('https://localhost:44341/api/playlist/getbarplaylists/' + this.barId)
-        .then(response => (this.playlists = response.data))
+     /* await axios.get('https://localhost:44341/api/playlist/getbarplaylists/' + this.barId)
+        .then(response => (this.playlists = response.data))*/
     },
     LoadPlaylistSongs: async function () {
       await axios.get('https://localhost:44341/api/playlist/getplaylistsongs/' + this.playlist.id)
