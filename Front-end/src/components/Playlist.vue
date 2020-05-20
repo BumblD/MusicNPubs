@@ -26,16 +26,16 @@
       <div>
         <md-divider></md-divider>
         <md-list>
-          <div v-for="s in songs" v-bind:key="s.id">
+          <div v-for="s in songs" v-bind:key="s.rowid">
           <md-list-item>
               <span class="md-list-item-text">{{s.name}}</span>
-              <md-button v-on:click="ArrowUp(s.id)" class="md-icon-button md-dense md-primary">
+              <md-button v-on:click="ArrowUp(s.rowid)" class="md-icon-button md-dense md-primary">
                 <md-icon >arrow_upward</md-icon>
               </md-button>
-              <md-button v-on:click="ArrowDown(s.id)" class="md-icon-button md-dense md-accent">
+              <md-button v-on:click="ArrowDown(s.rowid)" class="md-icon-button md-dense md-accent">
                 <md-icon >arrow_downward</md-icon>
               </md-button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <md-button v-on:click="Blocked(s.id)" class="md-icon-button md-dense md-accent">
+              <md-button v-on:click="Blocked(s.rowid)" class="md-icon-button md-dense md-accent">
                 <md-icon >block</md-icon>
               </md-button>
               <md-button class='md-raised md-primary align-right button-down' v-on:click='Remove'>Šalinti</md-button>
@@ -81,6 +81,7 @@ import 'vue-material/dist/vue-material.min.css'
 import 'vue-material/dist/theme/default.css'
 import router from '../router/index.js'
 import axios from 'axios'
+
 Vue.use(VueMaterial)
 export default {
   name: 'App',
@@ -91,7 +92,7 @@ export default {
       barId: 1,
       playlistName: 'European hits',
       playlists: [ { id: 1, name: 'bang bang' }, { id: 2, name: 'ding ding' }, { id: 0, name: '' } ],
-      songs: [ { id: 1, name: 'Queen - Don\'t Stop Me Now' }, { id: 2, name: 'Survivor - Eye Of The Tiger' } ],
+      songs: [ { rowid: 1, id: 1, name: 'Queen - Don\'t Stop Me Now' }, {rowid: 2, id: 2, name: 'Survivor - Eye Of The Tiger' } ],
       selected: '',
     }
   },
@@ -117,13 +118,45 @@ export default {
     {
       console.log("CreateNew");
     },
-    ArrowDown: function(i)
+    ArrowDown: function(currentOrder)
     {
-      console.log("ArrowDown"+i);
+      function compare( a, b ) 
+      {
+        if ( a.rowid < b.rowid ){
+          return -1;
+        }
+        if ( a.rowid > b.rowid ){
+          return 1;
+        }
+        return 0;
+      }
+      var nextindex = this.songs.findIndex(x => x.rowid == currentOrder)
+      var currentindex = this.songs.findIndex(x => x.rowid == currentOrder+1)
+      var idprevious = this.songs[nextindex].rowid;
+      var idnext = this.songs[currentindex].rowid;
+      this.songs[nextindex].rowid = idnext      
+      this.songs[currentindex].rowid = idprevious;
+      this.songs.sort(compare);
     },
-    ArrowUp: function(i)
+    ArrowUp: function(currentOrder)
     {
-      console.log("ArrowUp"+i);
+      function compare( a, b ) 
+      {
+        if ( a.rowid < b.rowid ){
+          return -1;
+        }
+        if ( a.rowid > b.rowid ){
+          return 1;
+        }
+        return 0;
+      }
+      var currentindex = this.songs.findIndex(x => x.rowid == currentOrder)
+      var nextindex = this.songs.findIndex(x => x.rowid == currentOrder-1)
+      var idprevious = this.songs[currentindex].rowid;
+      var idnext = this.songs[nextindex].rowid;
+      this.songs[currentindex].rowid = idnext
+      this.songs[nextindex].rowid = idprevious;
+      this.songs.sort(compare);
     },
     Blocked: function(i)
     {
