@@ -72,7 +72,10 @@ namespace Muzika_ir_barai.Controllers
             {
                 Db.Connection.Open();
                 var cmd = Db.Connection.CreateCommand();
-                cmd.CommandText = $"SELECT * FROM DainosGrojarasciai WHERE Grojarastis = {id}";
+                cmd.CommandText = $"SELECT d.* " +
+                                $"FROM DainosGrojarasciai dg " +
+                                $"JOIN Dainos d ON d.id = dg.Daina " +
+                                $"WHERE dg.Grojarastis = {id}";
 
                 using (var reader = cmd.ExecuteReader())
                 {
@@ -99,7 +102,7 @@ namespace Muzika_ir_barai.Controllers
 
         [HttpPost]
         [Route("{playlist}/BlockSong/{id}")]
-        public IActionResult CreateEvent([FromRoute] int playlist, [FromRoute] int id)
+        public IActionResult BlockSong([FromRoute] int playlist, [FromRoute] int id)
         {
             if (playlist < 0)
                 return BadRequest();
@@ -112,9 +115,9 @@ namespace Muzika_ir_barai.Controllers
                 Db.Connection.Open();
                 var cmd = Db.Connection.CreateCommand();
                 cmd.CommandText = $"INSERT INTO BlokuotosDainos(Daina, Baras) " +
-                    $"SELECT dg.Daina, g.Baras" +
-                    $"FROM DainosGrojarasciai dg" +
-                    $"JOIN Grojarasciai g ON g.id = dg.Grojarastis" +
+                    $"SELECT dg.Daina, g.Baras " +
+                    $"FROM DainosGrojarasciai dg " +
+                    $"JOIN Grojarasciai g ON g.id = dg.Grojarastis " +
                     $"WHERE dg.Daina = {id} AND dg.Grojarastis = {playlist}";
                 cmd.ExecuteNonQuery();
 
@@ -122,6 +125,296 @@ namespace Muzika_ir_barai.Controllers
                 cmd.ExecuteNonQuery();
 
                 return Ok();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("GetTopTen/{id}")]
+        public IActionResult GetTopTen([FromRoute] int id)
+        {
+            List<SongModel> songs = new List<SongModel>();
+
+            try
+            {
+                Db.Connection.Open();
+                var cmd = Db.Connection.CreateCommand();
+                cmd.CommandText = $"SELECT DISTINCT TOP 10 d.* " +
+                    $"FROM DainosGrojarasciai dg " +
+                    $"JOIN Dainos d ON d.id = dg.Daina " +
+                    $"JOIN Grojarasciai g on g.id = dg.Grojarastis " +
+                    $"WHERE g.Baras = 1 " +
+                    $"ORDER BY d.Ivertinimas DESC {id}";
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        songs.Add(new SongModel()
+                        {
+                            Id = Convert.ToInt32(reader["id"]),
+                            Name = Convert.ToString(reader["Pavadinimas"]),
+                            Author = Convert.ToString(reader["Atlikejas"]),
+                            ListeningCount = Convert.ToInt32(reader["Klausymu_kiekis"]),
+                            Rating = Convert.ToInt32(reader["Ivertinimas"]),
+                        });
+                    }
+                }
+                return Ok(songs);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("{song}/AddToPlaylist/{id}")]
+        public IActionResult AddToPlaylist([FromRoute] int song, [FromRoute] int id)
+        {
+            if (song < 0)
+                return BadRequest();
+
+            if (id < 0)
+                return BadRequest();
+
+            try
+            {
+                Db.Connection.Open();
+                var cmd = Db.Connection.CreateCommand();
+                cmd.CommandText = $"SELECT * FROM DainosGrojarasciai " +
+                            $" WHERE Daina = {song} AND Grojarastis = {id}";
+                var reader = cmd.ExecuteReader();
+
+                // song already exists in playlist
+                if (reader.HasRows)
+                    return BadRequest();
+
+                cmd.CommandText = $"INSERT INTO DainosGrojarasciai VALUES ({song}, {id})";
+                cmd.ExecuteNonQuery();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("SearchSongs")]
+        public IActionResult SearchSongs([FromBody] string query)
+        {
+            List<SongModel> songs = new List<SongModel>();
+
+            try
+            {
+                Db.Connection.Open();
+                var cmd = Db.Connection.CreateCommand();
+                cmd.CommandText = $"SELECT * FROM Dainos d " +
+                    $"WHERE d.Pavadinimas LIKE '%{query}%' " +
+                    $"OR d.Atlikejas like '%{query}%'";
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        songs.Add(new SongModel()
+                        {
+                            Id = Convert.ToInt32(reader["id"]),
+                            Name = Convert.ToString(reader["Pavadinimas"]),
+                            Author = Convert.ToString(reader["Atlikejas"]),
+                            ListeningCount = Convert.ToInt32(reader["Klausymu_kiekis"]),
+                            Rating = Convert.ToInt32(reader["Ivertinimas"]),
+                        });
+                    }
+                }
+                return Ok(songs);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("GetBlockedSongs/{id}")]
+        public IActionResult GetBlockedSongs([FromRoute] int id)
+        {
+            List<int> songIds = new List<int>();
+
+            try
+            {
+                Db.Connection.Open();
+                var cmd = Db.Connection.CreateCommand();
+                cmd.CommandText = $"SELECT * FROM BlokuotosDainos WHERE Baras = {id}";
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                        songIds.Add(Convert.ToInt32(reader["Daina"]));
+                }
+                return Ok(songIds);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("RemoveBlockedSongs")]
+        public IActionResult RemoveBlockedSongs([FromBody] List<SongModel> songs, [FromBody] List<int> blockedIds)
+        {
+            try
+            {
+                songs = songs.Where(x => !blockedIds.Contains(x.Id)).Take(10).ToList();
+                return Ok(songs);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("{playlist}/NextSong/{id}")]
+        public IActionResult NextSong([FromRoute] int playlist, [FromRoute] int id)
+        {
+            List<SongModel> songs = new List<SongModel>();
+
+            try
+            {
+                Db.Connection.Open();
+                var cmd = Db.Connection.CreateCommand();
+                cmd.CommandText = $"Select TOP 1 d.* " +
+                    $"FROM DainosGrojarasciai dg " +
+                    $"JOIN Dainos d on d.id = dg.Daina " +
+                    $"WHERE dg.Grojarastis = {playlist} AND dg.Daina > {id} " +
+                    $"ORDER BY dg.Daina";
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        songs.Add(new SongModel()
+                        {
+                            Id = Convert.ToInt32(reader["id"]),
+                            Name = Convert.ToString(reader["Pavadinimas"]),
+                            Author = Convert.ToString(reader["Atlikejas"]),
+                            ListeningCount = Convert.ToInt32(reader["Klausymu_kiekis"]),
+                            Rating = Convert.ToInt32(reader["Ivertinimas"]),
+                        });
+                    }
+                }
+                return Ok(songs);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("{playlist}/FirstSong")]
+        public IActionResult FirstSong([FromRoute] int playlist)
+        {
+            List<SongModel> songs = new List<SongModel>();
+
+            try
+            {
+                Db.Connection.Open();
+                var cmd = Db.Connection.CreateCommand();
+                cmd.CommandText = $"Select TOP 1 d.* " +
+                    $"FROM DainosGrojarasciai dg " +
+                    $"JOIN Dainos d on d.id = dg.Daina " +
+                    $"WHERE dg.Grojarastis = {playlist} " +
+                    $"ORDER BY dg.Daina";
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        songs.Add(new SongModel()
+                        {
+                            Id = Convert.ToInt32(reader["id"]),
+                            Name = Convert.ToString(reader["Pavadinimas"]),
+                            Author = Convert.ToString(reader["Atlikejas"]),
+                            ListeningCount = Convert.ToInt32(reader["Klausymu_kiekis"]),
+                            Rating = Convert.ToInt32(reader["Ivertinimas"]),
+                        });
+                    }
+                }
+                return Ok(songs);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("CreatePlaylist/{id}")]
+        public IActionResult CreatePlaylist([FromRoute] int id, [FromBody] PlaylistModel playlist)
+        {
+            if (string.IsNullOrWhiteSpace(playlist.Name))
+                return BadRequest();
+
+            if (playlist.BarId < 1)
+                return BadRequest();
+
+            try
+            {
+                Db.Connection.Open();
+                var cmd = Db.Connection.CreateCommand();
+                cmd.CommandText = $"SELECT* FROM Grojarasciai WHERE Baras = {id} AND Pavadinimas = '{playlist.Name}'";
+                var reader = cmd.ExecuteReader();
+
+                // identical playlist already exists
+                if (reader.HasRows)
+                    return BadRequest();
+
+                cmd.CommandText = $"INSERT INTO Grojarasciai (Pavadinimas, id, Baras) " +
+                                  $"VALUES ({playlist.Name}, (SELECT MAX(id) + 1 FROM Grojarasciai), {id})";
+                cmd.ExecuteNonQuery();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("GetIntervals/{id}")]
+        public IActionResult GetIntervals([FromRoute] int id)
+        {
+            List<IntervalModel> intervals = new List<IntervalModel>();
+
+            try
+            {
+                Db.Connection.Open();
+                var cmd = Db.Connection.CreateCommand();
+                cmd.CommandText = $"SELECT * FROM LaikuIntervalai WHERE Baras = {id}";
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        intervals.Add(new IntervalModel()
+                        {
+                            Id = Convert.ToInt32(reader["id"]),
+                            BarId = Convert.ToInt32(reader["Baras"]),
+                            Start = Convert.ToDateTime(reader["Pradzia"]),
+                            End = Convert.ToDateTime(reader["Pabaiga"]),
+                        });
+                    }
+                }
+                return Ok(intervals);
             }
             catch (Exception e)
             {
