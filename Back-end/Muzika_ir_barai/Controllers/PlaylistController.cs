@@ -146,8 +146,8 @@ namespace Muzika_ir_barai.Controllers
                     $"FROM DainosGrojarasciai dg " +
                     $"JOIN Dainos d ON d.id = dg.Daina " +
                     $"JOIN Grojarasciai g on g.id = dg.Grojarastis " +
-                    $"WHERE g.Baras = 1 " +
-                    $"ORDER BY d.Ivertinimas DESC {id}";
+                    $"WHERE g.Baras = {id} " +
+                    $"ORDER BY d.Ivertinimas DESC";
 
                 using (var reader = cmd.ExecuteReader())
                 {
@@ -192,6 +192,7 @@ namespace Muzika_ir_barai.Controllers
                 // song already exists in playlist
                 if (reader.HasRows)
                     return BadRequest();
+                reader.Close();
 
                 cmd.CommandText = $"INSERT INTO DainosGrojarasciai VALUES ({song}, {id})";
                 cmd.ExecuteNonQuery();
@@ -267,11 +268,11 @@ namespace Muzika_ir_barai.Controllers
 
         [HttpGet]
         [Route("RemoveBlockedSongs")]
-        public IActionResult RemoveBlockedSongs([FromBody] List<SongModel> songs, [FromBody] List<int> blockedIds)
+        public IActionResult RemoveBlockedSongs([FromBody] RemoveModel data)
         {
             try
             {
-                songs = songs.Where(x => !blockedIds.Contains(x.Id)).Take(10).ToList();
+                var songs = data.Songs.Where(x => !data.BlockedIds.Contains(x.Id)).Take(10).ToList();
                 return Ok(songs);
             }
             catch (Exception e)
@@ -363,7 +364,7 @@ namespace Muzika_ir_barai.Controllers
             if (string.IsNullOrWhiteSpace(playlist.Name))
                 return BadRequest();
 
-            if (playlist.BarId < 1)
+            if (id < 1)
                 return BadRequest();
 
             try
@@ -376,9 +377,10 @@ namespace Muzika_ir_barai.Controllers
                 // identical playlist already exists
                 if (reader.HasRows)
                     return BadRequest();
+                reader.Close();
 
                 cmd.CommandText = $"INSERT INTO Grojarasciai (Pavadinimas, id, Baras) " +
-                                  $"VALUES ({playlist.Name}, (SELECT MAX(id) + 1 FROM Grojarasciai), {id})";
+                                  $"VALUES ('{playlist.Name}', (SELECT MAX(id) + 1 FROM Grojarasciai), {id})";
                 cmd.ExecuteNonQuery();
 
                 return Ok();

@@ -13,4 +13,10 @@ namespace Muzika_ir_barai.Models
         public int? ListeningCount { get; set; }
         public int? Rating { get; set; }
     }
+
+    public class RemoveModel
+    {
+        public List<SongModel> Songs { get; set; }
+        public List<int> BlockedIds { get; set; }
+    }
 }
