@@ -12,6 +12,8 @@ namespace Muzika_ir_barai.Models
         public string Author { get; set; }
         public int? ListeningCount { get; set; }
         public int? Rating { get; set; }
+
+        public int? Length = 150;
     }
 
     public class RemoveModel

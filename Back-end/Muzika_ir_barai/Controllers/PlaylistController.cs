@@ -285,7 +285,7 @@ namespace Muzika_ir_barai.Controllers
         [Route("{playlist}/NextSong/{id}")]
         public IActionResult NextSong([FromRoute] int playlist, [FromRoute] int id)
         {
-            List<SongModel> songs = new List<SongModel>();
+            SongModel song = new SongModel();
 
             try
             {
@@ -301,17 +301,22 @@ namespace Muzika_ir_barai.Controllers
                 {
                     while (reader.Read())
                     {
-                        songs.Add(new SongModel()
+                        song = new SongModel()
                         {
                             Id = Convert.ToInt32(reader["id"]),
                             Name = Convert.ToString(reader["Pavadinimas"]),
                             Author = Convert.ToString(reader["Atlikejas"]),
                             ListeningCount = Convert.ToInt32(reader["Klausymu_kiekis"]),
                             Rating = Convert.ToInt32(reader["Ivertinimas"]),
-                        });
+                        };
                     }
+                    reader.Close();
                 }
-                return Ok(songs);
+
+                cmd.CommandText = $"UPDATE Dainos SET Klausymu_kiekis = Klausymu_kiekis + 1 WHERE id = {song.Id}";
+                cmd.ExecuteNonQuery();
+
+                return Ok(song);
             }
             catch (Exception e)
             {
@@ -323,7 +328,7 @@ namespace Muzika_ir_barai.Controllers
         [Route("{playlist}/FirstSong")]
         public IActionResult FirstSong([FromRoute] int playlist)
         {
-            List<SongModel> songs = new List<SongModel>();
+            SongModel song = new SongModel();
 
             try
             {
@@ -339,17 +344,22 @@ namespace Muzika_ir_barai.Controllers
                 {
                     while (reader.Read())
                     {
-                        songs.Add(new SongModel()
+                        song = new SongModel()
                         {
                             Id = Convert.ToInt32(reader["id"]),
                             Name = Convert.ToString(reader["Pavadinimas"]),
                             Author = Convert.ToString(reader["Atlikejas"]),
                             ListeningCount = Convert.ToInt32(reader["Klausymu_kiekis"]),
                             Rating = Convert.ToInt32(reader["Ivertinimas"]),
-                        });
+                        };                        
                     }
+                    reader.Close();
                 }
-                return Ok(songs);
+
+                cmd.CommandText = $"UPDATE Dainos SET Klausymu_kiekis = Klausymu_kiekis + 1 WHERE id = {song.Id}";
+                cmd.ExecuteNonQuery();
+
+                return Ok(song);
             }
             catch (Exception e)
             {
