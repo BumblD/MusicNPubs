@@ -2,10 +2,10 @@
   <div class='center'>
     <md-card class='box'>
       <md-button class="md-raised md-primary margin" v-on:click="Create" >Kurti naują</md-button>
-        <md-list class='width'>
+        <md-list style="width: 100%;">
           <md-divider class="md-inset"></md-divider>
           <div v-for="event in events" v-bind:key="HotReload">
-            <md-list-item>
+            <md-list-item style="width: 100%;">
               <Event-Card :object="event" @Deleted="onClickChild"></Event-Card>
             </md-list-item>
             <md-divider class="md-inset"></md-divider>
@@ -47,8 +47,8 @@ Vue.component('Event-Card', {
   template: `
   <div style='width: 100%'>
   {{ object.name }}
-    <md-button class='md-raised md-primary align-right center-vertical' v-on:click='Detailed' >Redaguoti</md-button>
-    <md-button class='md-raised md-primary align-right center-vertical' v-on:click='Remove' >Šalinti</md-button>
+    <md-button class='md-raised md-primary align-right' style="padding-top: 0.1%;" v-on:click='Detailed' >Redaguoti</md-button>
+    <md-button class='md-raised md-primary align-right' style="padding-top: 0.1%;" v-on:click='Remove' >Šalinti</md-button>
 
   </div>`
 })

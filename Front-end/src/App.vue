@@ -5,8 +5,8 @@
         <router-link to="/EventList">Renginiai</router-link>
         <router-link to="/Map">Žemėlapis</router-link>
         <router-link to="/Playlist">Grojaraštis</router-link>
-        <router-link to="/">Lankytojai</router-link>
-        <router-link to="/">Sąskaitos</router-link>
+        <router-link to="/Clients">Lankytojai</router-link>
+        <router-link to="/Bills">Sąskaitos</router-link>
     </ul>
     <router-view/>
   </div>

@@ -7,6 +7,8 @@ import MapPage from '@/components/Map.vue'
 import BarDetails from '@/components/BarDetails.vue'
 import Reviews from '@/components/Reviews.vue'
 import Playlist from '@/components/Playlist.vue'
+import Clients from '@/components/Clients.vue'
+import Bills from '@/components/Bills.vue'
 Vue.use(Router)
 
 export default new Router({
@@ -45,6 +47,16 @@ export default new Router({
       path: '/Playlist',
       name: 'Playlist',
       component: Playlist
+    },
+    {
+      path: '/Clients',
+      name: 'Clients',
+      component: Clients
+    },
+    {
+      path: '/Bills',
+      name: 'Bills',
+      component: Bills
     }
   ]
 })

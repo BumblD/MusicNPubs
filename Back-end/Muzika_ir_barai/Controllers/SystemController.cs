@@ -167,5 +167,38 @@ namespace Muzika_ir_barai.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [HttpGet]
+        [Route("GetClients")]
+        public IActionResult GetClients()
+        {
+            List<ClientModel> clients = new List<ClientModel>();
+
+            try
+            {
+                Db.Connection.Open();
+                var cmd = Db.Connection.CreateCommand();
+                cmd.CommandText = $"SELECT l.*, n.Prisijungimo_Vardas FROM Lankytojai l JOIN Naudotojai n ON n.id = l.id";
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        clients.Add(new ClientModel()
+                        {
+                            Id = Convert.ToInt32(reader["id"]),
+                            Username = Convert.ToString(reader["Prisijungimo_vardas"]),
+                            IsBlocked = Convert.ToBoolean(reader["Blokuotas"]),
+                            WaitTime = Convert.ToInt32(reader["Laukimo_laikas"]),
+                        });
+                    }
+                }
+                return Ok(clients);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
     }
 }

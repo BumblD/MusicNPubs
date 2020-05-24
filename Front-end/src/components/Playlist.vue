@@ -13,7 +13,7 @@
           <md-field>
             <label for="playlists">Grojaraščių sąrašas</label>
             <md-select v-model="selected" md-dense>
-                <md-option v-for="pl in playlists" :value="pl" :key="pl.id" > {{ pl.name }} </md-option>
+                <md-option v-for="pl in playlists" :value="pl" :key="pl.id" v-on:click="SelectPlaylist(pl)"> {{ pl.name }} </md-option>
             </md-select>
           </md-field>
         </div>
@@ -27,7 +27,7 @@
         <md-divider></md-divider>
         <md-list>
           <div v-for="s in songs" v-bind:key="s.rowid">
-          <md-list-item>
+          <md-list-item  style="width: 100%;">
               <span class="md-list-item-text">{{s.name}}</span>
               <md-button v-on:click="ArrowUp(s.rowid)" class="md-icon-button md-dense md-primary">
                 <md-icon >arrow_upward</md-icon>
@@ -35,7 +35,7 @@
               <md-button v-on:click="ArrowDown(s.rowid)" class="md-icon-button md-dense md-accent">
                 <md-icon >arrow_downward</md-icon>
               </md-button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <md-button v-on:click="Blocked(s.rowid)" class="md-icon-button md-dense md-accent">
+              <md-button v-on:click="Blocked(s.id)" class="md-icon-button md-dense md-accent">
                 <md-icon >block</md-icon>
               </md-button>
               <md-button class='md-raised md-primary align-right button-down' v-on:click='Remove'>Šalinti</md-button>
@@ -90,10 +90,17 @@ export default {
       PlayDisplay: false,
       LetChoose: false,
       barId: 1,
-      playlistName: 'European hits',
-      playlists: [ { id: 1, name: 'bang bang' }, { id: 2, name: 'ding ding' }, { id: 0, name: '' } ],
-      songs: [ { rowid: 1, id: 1, name: 'Queen - Don\'t Stop Me Now' }, {rowid: 2, id: 2, name: 'Survivor - Eye Of The Tiger' } ],
-      selected: '',
+      playlistName: '',
+      playlists: [{ id: 0, name: '' } ],
+      songs: [],
+      selected: ''
+    }
+  },
+  watch: {
+    selected: function (event)
+    {
+      console.log(this.selected)
+      this.LoadPlaylistSongs()
     }
   },
   methods: {
@@ -120,7 +127,7 @@ export default {
     },
     ArrowDown: function(currentOrder)
     {
-      function compare( a, b ) 
+      function compare( a, b )
       {
         if ( a.rowid < b.rowid ){
           return -1;
@@ -134,13 +141,13 @@ export default {
       var currentindex = this.songs.findIndex(x => x.rowid == currentOrder+1)
       var idprevious = this.songs[nextindex].rowid;
       var idnext = this.songs[currentindex].rowid;
-      this.songs[nextindex].rowid = idnext      
+      this.songs[nextindex].rowid = idnext
       this.songs[currentindex].rowid = idprevious;
       this.songs.sort(compare);
     },
     ArrowUp: function(currentOrder)
     {
-      function compare( a, b ) 
+      function compare( a, b )
       {
         if ( a.rowid < b.rowid ){
           return -1;
@@ -158,21 +165,25 @@ export default {
       this.songs[nextindex].rowid = idprevious;
       this.songs.sort(compare);
     },
-    Blocked: function(i)
+    Blocked: async function(i)
     {
-      console.log("blocked"+i);
+      await axios.post('https://localhost:44341/api/playlist/' + this.selected.id + '/BlockSong/' + i)
+        .then(response => console.log(response.data))
+      this.LoadPlaylistSongs()
     },
     Remove: function()
     {
       console.log("removed");
     },
     LoadPlaylists: async function () {
-     /* await axios.get('https://localhost:44341/api/playlist/getbarplaylists/' + this.barId)
-        .then(response => (this.playlists = response.data))*/
+      await axios.get('https://localhost:44341/api/playlist/GetBarPlaylists/' + this.barId)
+        .then(response => (this.playlists = response.data))
+
+      this.playlists = [...this.playlists, { id: 0, name: '' }]
     },
     LoadPlaylistSongs: async function () {
-      /*await axios.get('https://localhost:44341/api/playlist/getplaylistsongs/' + this.playlist.id)
-        .then(response => (this.songs = response.data))*/
+      await axios.get('https://localhost:44341/api/playlist/getplaylistsongs/' + this.selected.id)
+        .then(response => (this.songs = response.data))
     }
   },
   async beforeMount () {

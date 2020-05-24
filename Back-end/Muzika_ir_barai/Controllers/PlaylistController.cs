@@ -45,7 +45,6 @@ namespace Muzika_ir_barai.Controllers
                             Id = Convert.ToInt32(reader["id"]),
                             Name = Convert.ToString(reader["Pavadinimas"]),
                             BarId = Convert.ToInt32(reader["Baras"]),
-                            SongId = Convert.ToInt32(reader["Daina"]),
                         });
                     }
                 }
