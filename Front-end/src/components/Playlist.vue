@@ -38,7 +38,7 @@
               <md-button v-on:click="Blocked(s.id)" class="md-icon-button md-dense md-accent">
                 <md-icon >block</md-icon>
               </md-button>
-              <md-button class='md-raised md-primary align-right button-down' v-on:click='Remove'>Šalinti</md-button>
+              <md-button v-on:click="Remove(s.id)" class='md-raised md-primary align-right button-down' >Šalinti</md-button>
             </md-list-item>
             <md-divider></md-divider>
           </div>
@@ -93,7 +93,8 @@ export default {
       playlistName: '',
       playlists: [{ id: 0, name: '' } ],
       songs: [],
-      selected: ''
+      selected: '',
+      updateRefresh: 0
     }
   },
   watch: {
@@ -106,7 +107,12 @@ export default {
   methods: {
     Shuffle: function()
     {
-      console.log("Shuffle");
+      for (var i = this.songs.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = this.songs[i].rowid;
+        this.songs[i].rowid = this.songs[j].rowid;
+        this.songs[j].rowid = temp;
+      }
     },
     Play: function()
     {
@@ -123,6 +129,7 @@ export default {
     },
     CreateNew: function()
     {
+      router.push({ name: 'AddSong', params: { id: this.selected.id } })
       console.log("CreateNew");
     },
     ArrowDown: function(currentOrder)
@@ -171,9 +178,15 @@ export default {
         .then(response => console.log(response.data))
       this.LoadPlaylistSongs()
     },
-    Remove: function()
+    Remove: async function(songid)
     {
-      console.log("removed");
+      //RemoveToPlaylist
+      var me = this;
+      console.log(songid);
+      await axios.post('https://localhost:44341/api/playlist/' + songid + '/RemoveToPlaylist/' + this.selected.id).then(function(){
+        console.log("removed");
+        me.LoadPlaylistSongs()
+      })    
     },
     LoadPlaylists: async function () {
       await axios.get('https://localhost:44341/api/playlist/GetBarPlaylists/' + this.barId)
@@ -182,8 +195,16 @@ export default {
       this.playlists = [...this.playlists, { id: 0, name: '' }]
     },
     LoadPlaylistSongs: async function () {
+      var me = this;
       await axios.get('https://localhost:44341/api/playlist/getplaylistsongs/' + this.selected.id)
-        .then(response => (this.songs = response.data))
+        .then(function(response){
+          me.songs = response.data;
+          console.log(response.data.length);
+          for(var index = 0; index < response.data.length; index++)
+          {
+            me.songs[index].rowid = index;
+          }
+        })          
     }
   },
   async beforeMount () {

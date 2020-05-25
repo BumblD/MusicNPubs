@@ -204,6 +204,34 @@ namespace Muzika_ir_barai.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("{song}/RemoveToPlaylist/{id}")]
+        public IActionResult RemoveToPlaylist([FromRoute] int song, [FromRoute] int id)
+        {
+            if (song < 0)
+                return BadRequest();
+
+            if (id < 0)
+                return BadRequest();
+
+            try
+            {
+                Db.Connection.Open();
+                var cmd = Db.Connection.CreateCommand();
+                cmd.CommandText = $"delete FROM DainosGrojarasciai " +
+                            $" WHERE Daina = {song} AND Grojarastis = {id}";
+        
+                cmd.ExecuteNonQuery();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+
+
         [HttpGet]
         [Route("SearchSongs")]
         public IActionResult SearchSongs([FromBody] string query)
@@ -432,5 +460,47 @@ namespace Muzika_ir_barai.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+
+        /// <summary>
+        /// Gets playlists for specified bar
+        /// </summary>
+        /// <param name="id">Bar id</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("GetSongs")]
+        public IActionResult GetSongs()
+        {
+            List<SongModel> songs = new List<SongModel>();
+
+            try
+            {
+                Db.Connection.Open();
+                var cmd = Db.Connection.CreateCommand();
+                cmd.CommandText = $"SELECT * FROM Dainos";
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        songs.Add(new SongModel()
+                        {
+                            Id = Convert.ToInt32(reader["id"]),
+                            Name = Convert.ToString(reader["Pavadinimas"]),
+                            Author = Convert.ToString(reader["Atlikejas"]),
+                            ListeningCount = Convert.ToInt32(reader["Klausymu_kiekis"]),
+                            Rating = Convert.ToInt32(reader["Ivertinimas"]),
+                        });
+                    }
+                }
+                return Ok(songs);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+
+
     }
 }

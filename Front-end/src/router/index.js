@@ -9,6 +9,7 @@ import Reviews from '@/components/Reviews.vue'
 import Playlist from '@/components/Playlist.vue'
 import Clients from '@/components/Clients.vue'
 import Bills from '@/components/Bills.vue'
+import AddSong from '@/components/AddSong.vue'
 Vue.use(Router)
 
 export default new Router({
@@ -57,6 +58,11 @@ export default new Router({
       path: '/Bills',
       name: 'Bills',
       component: Bills
-    }
+    },
+    {
+      path: '/AddSong',
+      name: 'AddSong',
+      component: AddSong
+    }    
   ]
 })
