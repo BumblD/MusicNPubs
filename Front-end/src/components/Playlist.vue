@@ -174,9 +174,11 @@ export default {
     },
     Blocked: async function(i)
     {
+      if (confirm('Ar tikrai norite blokuoti šią dainą?')) {
       await axios.post('https://localhost:44341/api/playlist/' + this.selected.id + '/BlockSong/' + i)
         .then(response => console.log(response.data))
       this.LoadPlaylistSongs()
+      }
     },
     Remove: async function(songid)
     {

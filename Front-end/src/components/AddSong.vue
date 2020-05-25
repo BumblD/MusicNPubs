@@ -54,6 +54,7 @@ export default {
                 var tempobj = {};
                 me.songs.push(response.data[i]);
             }
+            me.songs.splice(10);
         })   
 
         }
