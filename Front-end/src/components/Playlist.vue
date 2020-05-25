@@ -64,11 +64,6 @@
             <md-icon >skip_next</md-icon>
           </md-button>
         </div>
-        <div class="md-layout-item">
-          <md-button v-on:click="Shuffle"class="md-fab md-primary">
-            <md-icon >shuffle</md-icon>
-          </md-button>
-        </div>
       </div>
     </md-card>
   </div>
@@ -105,15 +100,6 @@ export default {
     }
   },
   methods: {
-    Shuffle: function()
-    {
-      for (var i = this.songs.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var temp = this.songs[i].rowid;
-        this.songs[i].rowid = this.songs[j].rowid;
-        this.songs[j].rowid = temp;
-      }
-    },
     Play: function()
     {
       this.PlayDisplay = !this.PlayDisplay;
