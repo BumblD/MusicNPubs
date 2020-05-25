@@ -10,6 +10,10 @@ import Playlist from '@/components/Playlist.vue'
 import Clients from '@/components/Clients.vue'
 import Bills from '@/components/Bills.vue'
 import AddSong from '@/components/AddSong.vue'
+import PlaylistForUsers from '@/components/PlaylistForUsers.vue'
+import Top10Songs from '@/components/Top10Songs.vue'
+
+
 Vue.use(Router)
 
 export default new Router({
@@ -63,6 +67,16 @@ export default new Router({
       path: '/AddSong',
       name: 'AddSong',
       component: AddSong
+    },
+    {
+      path: '/PlaylistForUsers',
+      name: 'PlaylistForUsers',
+      component: PlaylistForUsers
+    },    
+    {
+      path: '/Top10Songs',
+      name: 'Top10Songs',
+      component: Top10Songs
     }    
   ]
 })

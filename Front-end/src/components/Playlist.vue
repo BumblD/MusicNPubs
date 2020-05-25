@@ -5,7 +5,7 @@
         <div class="md-layout-item" style="display: flex;align-items: center;">
           <md-field md-clearable>
             <label>Pavadinimas</label>
-            <md-input v-model="selected.name"></md-input>
+            <md-input disabled v-model="selected.name"></md-input>
           </md-field>
         </div>
 
@@ -180,6 +180,7 @@ export default {
     },
     Remove: async function(songid)
     {
+      if (confirm('Ar tikrai norite pašalinti šią dainą?')) {
       //RemoveToPlaylist
       var me = this;
       console.log(songid);
@@ -187,6 +188,7 @@ export default {
         console.log("removed");
         me.LoadPlaylistSongs()
       })    
+      }
     },
     LoadPlaylists: async function () {
       await axios.get('https://localhost:44341/api/playlist/GetBarPlaylists/' + this.barId)

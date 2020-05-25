@@ -131,6 +131,41 @@ namespace Muzika_ir_barai.Controllers
             }
         }
 
+
+        [HttpGet]
+        [Route("GetTop10")]
+        public IActionResult GetTop10()
+        {
+            List<SongModel> songs = new List<SongModel>();
+
+            try
+            {
+                Db.Connection.Open();
+                var cmd = Db.Connection.CreateCommand();
+                cmd.CommandText = $"SELECT DISTINCT TOP 10 * FROM Dainos ORDER BY Dainos.Klausymu_kiekis desc";
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        songs.Add(new SongModel()
+                        {
+                            Id = Convert.ToInt32(reader["id"]),
+                            Name = Convert.ToString(reader["Pavadinimas"]),
+                            Author = Convert.ToString(reader["Atlikejas"]),
+                            ListeningCount = Convert.ToInt32(reader["Klausymu_kiekis"]),
+                            Rating = Convert.ToInt32(reader["Ivertinimas"]),
+                        });
+                    }
+                }
+                return Ok(songs);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+
+
         [HttpGet]
         [Route("GetTopTen/{id}")]
         public IActionResult GetTopTen([FromRoute] int id)

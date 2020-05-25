@@ -7,6 +7,9 @@
           <md-divider class="md-inset"></md-divider>
         </div>
     </div>
+    <md-button v-on:click="CreateNew" class="md-fab md-mini md-primary center-horizontal">
+      <md-icon >add</md-icon>
+    </md-button>
   </div>
 </template>
 
@@ -27,6 +30,9 @@ export default {
     await this.Load();
   },
   methods: {
+    CreateNew: function(){
+      console.log("createNew");
+    },
     Load: async function () {
       var me = this;
         await axios.get('https://localhost:44341/api/Review/GetAllReviews/'+this.barID)

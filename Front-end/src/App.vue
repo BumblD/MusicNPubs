@@ -7,6 +7,8 @@
         <router-link to="/Playlist">Grojaraštis</router-link>
         <router-link to="/Clients">Lankytojai</router-link>
         <router-link to="/Bills">Sąskaitos</router-link>
+        <router-link to="/PlaylistForUsers">Grojaraštis Lankytojams</router-link>
+        <router-link to="/Top10Songs">Top 10 dainų</router-link>        
     </ul>
     <router-view/>
   </div>
